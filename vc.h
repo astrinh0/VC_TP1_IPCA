@@ -14,8 +14,8 @@
 
 
 // Definições da obtenção do maximo e minimo entre dois valores
-#define MAX(a,b) (a>b?a:b)
-#define MIN(a,b) (a<b?a:b)
+#define MAX(a, b) (a > b ? a : b)
+#define MIN(a, b) (a < b ? a : b)
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -30,10 +30,11 @@ typedef struct {
 	int bytesperline;		// width * channels
 } IVC;
 
-
 typedef struct {
 	int x, y, width, height;	// Caixa Delimitadora (Bounding Box)
-	int area;					// Área
+	int area;					// �rea
+	int xc, yc;					// Centro-de-massa
+	int perimeter;				// Per�metro
 	int label;					// Etiqueta
 } OVC;
 
@@ -43,7 +44,7 @@ typedef struct {
 } FILTER;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//                    PROTÓTIPOS DE FUNÇÕES
+//                    Assinaturas
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // FUN��ES: ALOCAR E LIBERTAR UMA IMAGEM
@@ -60,3 +61,14 @@ OVC* vc_letters_blobs(IVC* src, OVC plate, int* nletters);
 
 // Função para desenhar a caixa delimitadora
 int vc_draw_boundingbox(IVC *src, OVC blob, int r, int g, int b);
+
+
+
+
+
+int vc_gray_to_binary_midpoint(IVC *src, IVC *dst, int kernel);
+int vc_binary_erode(IVC *src, IVC *dst, int kernel);
+int vc_binary_erode(IVC *src, IVC *dst, int kernel);
+int vc_binary_dilate(IVC *src, IVC *dst, int kernel);
+
+

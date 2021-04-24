@@ -1104,7 +1104,6 @@ IVC* vc_point_amount_image (IVC *src, int x, int y, int width, int height){
 //---------------------------------------------------- ESPECIFICO DAS MATRICULAS -----------------------------------------------------------------------------------------------------------------------
 
 // Deteção: Deteção da matricula e seus caracteres e desenho da caixa delimitadora
-
 // Realiza a deteção do local onde se encontra a matricula
 //  src    -> imagem original
 //  return --> retorna um blob com os dados de onde se encontra a matricula e sua area
