@@ -7,9 +7,9 @@
 //             ENGENHARIA DE SISTEMAS INFORMÁTICOS
 //                    VISÃO POR COMPUTADOR
 //
-//          [  BRUNO LOPES - a16970@alunos.ipca.pt  ]
-//          [  INES Alves  - a17016@alunos.ipca.pt  ]
-//          [  RUI COSTA   - a17005@alunos.ipca.pt  ]
+//         
+//          
+//          
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
