@@ -13,7 +13,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-// Definições da obtenção do maximo e minimo entre dois valores
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//                           MACROS
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #define MAX(a, b) (a > b ? a : b)
 #define MIN(a, b) (a < b ? a : b)
 
@@ -30,6 +32,10 @@ typedef struct {
 	int bytesperline;		// width * channels
 } IVC;
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//                   ESTRUTURA DE UM BLOB (OBJECTO)
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 typedef struct {
 	int x, y, width, height;	// Caixa Delimitadora (Bounding Box)
 	int area;					// �rea
@@ -38,10 +44,11 @@ typedef struct {
 	int label;					// Etiqueta
 } OVC;
 
-typedef struct {
+
+/* typedef struct {
 	int radius;       // Raio do filtro
 	double **matrix;  // Matriz do filtro
-} FILTER;
+} FILTER; */
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                    Assinaturas
@@ -55,20 +62,18 @@ IVC *vc_image_free(IVC *image);
 IVC *vc_read_image(char *filename);
 int vc_write_image(char *filename, IVC *image);
 
-// Funçoes para detetar a localização da matricula e das letras
-OVC vc_plate_blob(IVC* src);
-OVC* vc_letters_blobs(IVC* src, OVC plate, int* nletters);
-
-// Função para desenhar a caixa delimitadora
-int vc_draw_boundingbox(IVC *src, OVC blob, int r, int g, int b);
 
 
-
-
-
-int vc_gray_to_binary_midpoint(IVC *src, IVC *dst, int kernel);
+int vc_gray_to_binary(IVC *src, IVC *dst, int threshold);
 int vc_binary_erode(IVC *src, IVC *dst, int kernel);
 int vc_binary_erode(IVC *src, IVC *dst, int kernel);
 int vc_binary_dilate(IVC *src, IVC *dst, int kernel);
+int vc_binary_close(IVC *src, IVC *dst,int sizedilate, int sizeerode);
+int vc_binary_open(IVC *src, IVC *dst, int sizeerode, int sizedilate);
+int vc_gray_edge_prewitt(IVC *src, IVC *dst, float th);
+
+
+OVC* vc_binary_blob_labelling(IVC *src, IVC *dst, int *nlabels);
+int vc_binary_blob_info(IVC *src, OVC *blobs, int nblobs);
 
 
