@@ -1,6 +1,3 @@
-#pragma warning (disable: 4996)
-
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //           INSTITUTO POLITÉCNICO DO CÁVADO E DO AVE
 //                          2019/2020
@@ -63,7 +60,11 @@ IVC *vc_read_image(char *filename);
 int vc_write_image(char *filename, IVC *image);
 
 
-
-int vc_rgb_negative(IVC *src, IVC *dst);
-
-
+//Funções para processamento de imagens
+int vc_rgb_get_blue_gray(IVC *srcdst);
+int vc_rgb_to_gray(IVC *src, IVC *dst);
+int vc_gray_to_binary(IVC *src, IVC *dst, int threshold);
+int vc_binary_erode(IVC *src, IVC *dst, int kernel);
+int vc_binary_dilate(IVC *src, IVC *dst, int kernel);
+int vc_binary_open(IVC *src, IVC *dst, int kerode, int kdilate);
+int vc_binary_close(IVC *src, IVC *dst, int kdilate, int kerode);

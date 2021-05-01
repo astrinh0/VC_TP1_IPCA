@@ -1,6 +1,3 @@
-#pragma warning (disable: 4996)
-
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //           INSTITUTO POLITÉCNICO DO CÁVADO E DO AVE
 //                          2019/2020
@@ -63,17 +60,12 @@ IVC *vc_read_image(char *filename);
 int vc_write_image(char *filename, IVC *image);
 
 
-
+//Funções para processamento de imagens
 int vc_gray_to_binary(IVC *src, IVC *dst, int threshold);
 int vc_binary_erode(IVC *src, IVC *dst, int kernel);
-int vc_binary_erode(IVC *src, IVC *dst, int kernel);
 int vc_binary_dilate(IVC *src, IVC *dst, int kernel);
-int vc_binary_close(IVC *src, IVC *dst,int sizedilate, int sizeerode);
-int vc_binary_open(IVC *src, IVC *dst, int sizeerode, int sizedilate);
-int vc_gray_edge_prewitt(IVC *src, IVC *dst, float th);
-
-
+int vc_binary_open(IVC *src, IVC *dst, int kerode, int kdilate);
+int vc_binary_close(IVC *src, IVC *dst, int kdilate, int kerode);
 OVC* vc_binary_blob_labelling(IVC *src, IVC *dst, int *nlabels);
 int vc_binary_blob_info(IVC *src, OVC *blobs, int nblobs);
-
-
+int vc_brains_out(IVC *original, IVC *src, IVC *dst);

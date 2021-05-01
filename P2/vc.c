@@ -361,44 +361,249 @@ int vc_write_image(char *filename, IVC *image)
 }
 
 
-
-//-----------------------------------------
-// Processamento de imagens
-//-----------------------------------------
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//    // Negativo de Imgem RGB cores para negativo
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int vc_rgb_negative(IVC *src, IVC *dst)
+//Calcular Grayscale pelo Blue
+int vc_rgb_get_blue_gray(IVC *src)
 {
-    unsigned char *datasrc = (unsigned char *)src->data;
-    int width = src->width;
-    int height = src->height;
-    int bytesperline = src->width * src->channels;
-    int channels = src->channels;
-    int x, y;
-    long int pos;
-
-	unsigned char *datadst = (unsigned char*)dst->data;
-
+	unsigned char *datasrc = (unsigned char *)src->data;
 	
-    
-    // Verificação de erros
-    if ((src->width <= 0) || (src->height <= 0) || (src->data == NULL))return 0;
+	int width = src->width;
+	int height = src->height;
+	int bytesperline = src->width * src->channels;
+	int channels = src->channels;
+	int x, y;
+	long int pos;
+
+	//verifica erros
+	if ((src->width <= 0) || (src->height <= 0) || (src->data == NULL)) return 0;
+	if (src->channels != 3) return 0;
+
+	//Pega no valor azul e iguala todos os outros a esse valor
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			pos = y * bytesperline + x * channels;
+			datasrc[pos] = datasrc[pos + 2];	   //Red
+			datasrc[pos + 1] = datasrc[pos + 2]; //Green
+		}
+	}
+	return 1;
+}
+
+//Calcular RGB para Grey com intensidades de cor
+int vc_rgb_to_gray(IVC *src, IVC *dst)
+{
+	unsigned char *datasrc = (unsigned char *)src->data;
+	int bytesperline_src = src->width * src->channels;
+	int channels_src = src->channels;
+	unsigned char *datadst = (unsigned char *)dst->data;
+	int bytesperline_dst = dst->width * dst->channels;
+	int channels_dst = dst->channels;
+	int width = src->width;
+	int height = src->height;
+	int x, y;
+	long int pos_src, pos_dst;
+	float r, g, b;
+
+	//verificação de erros
+
+	if ((src->width <= 0) || (src->height <= 0) || (src->data == NULL)) return 0;
+	if ((src->channels != 3) || (dst->channels != 1)) return 0;
+
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			pos_src = y * bytesperline_src + x * channels_src;
+			pos_dst = y * bytesperline_dst + x * channels_dst;
+
+			r = (float)datasrc[pos_src];
+			g = (float)datasrc[pos_src + 1];
+			b = (float)datasrc[pos_src + 2];
+
+			datadst[pos_dst] = (unsigned char)((r * 0.299) + (g * 0.587) + (b * 0.114));
+		}
+	}
+
+	return 1;
+}
+
+// Converter uma imagem em tons de cinzento numa imagem binária
+//  src: imagem em tons de cinzento
+//  dst: imagem binária
+//  threshold: threshold a utilizar na conversão
+int vc_gray_to_binary(IVC *src, IVC *dst, int threshold)
+{
+
+	unsigned char *datasrc = (unsigned char*)src->data;
+	int bytesperline = src->width*src->channels;
+	int channels = src->channels;
+	
+	unsigned char *datadst = (unsigned char*)dst->data;
+	
+	int width = src->width;
+	int height = src->height;
+	int x, y;
+	long int pos;
+
+	if ((src->width <= 0) || (src->height <= 0) || (src->data == NULL))return 0;
 	if ((src->width != dst->width) || (src->height != dst->height))return 0;
 	if ((src->channels != 1) || (dst->channels != 1))return 0;
+
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			pos = y*bytesperline + x*channels;
+
+			if ((datasrc[pos] < threshold) || (datasrc[pos] > 175))
+			{
+				datadst[pos] = 0;
+			}
+			else
+			{
+				datadst[pos] = 255;
+			}
+
+		}
+	}
+
+	return 1;
+}
+
+
+// Aplica uma erosão aos elementos de uma imagem binária
+// Utilizámos um kernel quadrado devido a sua eficiencia em questoes de processamento e a aplicação dada a esta função, neste caso em especifico
+//  src: imagem binaria original
+//  dst: imagem binaria erodida
+//  kernel: tamanho do kernel a utilizar (número ímpar)
+int vc_binary_erode(IVC *src, IVC *dst, int kernel) {
+	
+	unsigned char *datasrc = (unsigned char*)src->data;
+	int bytesperline = src->width*src->channels;
+	int channels = src->channels;
+	
+	unsigned char *datadst = (unsigned char*)dst->data;
+	
+	int width = src->width;
+	int height = src->height;
+	int x, y, x2, y2;
+	long int pos_src, pos_dst;
+	int verifica;
+	kernel *= 0.5;
+
+	if ((src->width <= 0) || (src->height <= 0) || (src->data == NULL))return 0;
+	if ((src->width != dst->width) || (src->height != dst->height))return 0;
+	if ((src->channels != 1) || (dst->channels != 1))return 0;
+
+
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			pos_dst = y*bytesperline + x*channels;
+
+			verifica = 0;
+
+			for (y2 = y - kernel; y2 <= y + kernel; y2++)
+			{
+				for (x2 = x - kernel; x2 <= x + kernel; x2++)
+				{
+					if (y2 < 0 || y2 > height || x2 < 0 || x2 > width) continue;  // Não exceder os limites da imagem
+
+					pos_src = y2*bytesperline + x2*channels;
+					if (datasrc[pos_src] == 0) { verifica = 1; break;}   // Se algum dos pixeis do kernel for verificado, já não é necessário percorrer o resto do kernel
+				}
+				if (verifica) break;                                     // Parar o ciclo quando algum pixel do kernel for verificado
+			}
+
+			if (verifica == 1) { datadst[pos_dst] = 0; }
+			else { datadst[pos_dst] = 255; }
+
+		}
+	}
+
+	return 1;
+}
+
+// Operadores Morfológicos: Operam a forma dos objetos da imagem
+
+// Aplica uma dilatação aos elementos de uma imagem binária
+//  Utilizámos um kernel quadrado devido a sua eficiência em questões de processamento e a aplicação dada a esta função, neste caso em específico
+//  src: imagem binária original
+//  dst: imagem binária dilatada
+//  kernel -> tamanho do kernel a utilizar (número ímpar)
+int vc_binary_dilate(IVC *src, IVC *dst, int kernel)
+{
+   
+    unsigned char *datasrc = (unsigned char *) src->data;
+    int bytesperline_src = src->width* src->channels;
+    int channels_src = src->channels;
     
-    for (y = 0; y < height; y++)
-    {
-        for (x = 0; x < width; x++)
-        {
-            pos = y * bytesperline + x * channels;
-            
-            datadst[pos] = 255 - datasrc[pos];
-            datadst[pos + 1] = 255 - datasrc[pos + 1];
-            datadst[pos + 2] = 255 - datasrc[pos + 2];
+    unsigned char *datadst = (unsigned char *) dst->data;
+    int width = src->width;
+    int height = src->height;
+    
+    int x,y,xx,yy;
+    long int pos,posk;
+    
+    if((src->width <=0) || (src->height <=0) || (src->data == NULL)) return 0;
+    if((src->width != dst->width) || (src->height != dst->height) ) return 0;
+    if(( src->channels !=1 ) || ( dst->channels!=1 )) return 0;
+    
+    for(y=0;y<height;y++){
+        for(x=0; x<width;x++){
+            pos = y*bytesperline_src + x*channels_src;
+            datadst[pos]=0;
+            if ((((y - kernel/2)>=0) && ((x-kernel/2)>=0) && ((y+kernel/2)<height-1) && ((x+kernel/2)<width-1))) {
+                for(yy=y-kernel /2; yy<=y+kernel/2;yy++){
+                    for(xx=x-kernel/2;xx<=x+kernel/2;xx++){
+                        posk= yy * bytesperline_src + xx * channels_src;
+                        if(datasrc[posk]==255) datadst[pos] = 255;
+                    }
+                }
+            }
         }
     }
-    
     return 1;
+}
+
+// Aplica uma operação de abertura nos elementos da imagem
+//  src: imagem original
+//  dst: imagem destino
+//  kerode: kernel a aplicar na erosão
+//  kdilate: kernel a aplicar na dilatação
+int vc_binary_open(IVC *src, IVC *dst, int kerode, int kdilate)
+{
+
+	int verifica=1;
+
+	IVC *dstTemp = vc_image_new(src->width, src->height, src->channels, src->levels);
+
+	verifica &= vc_binary_erode(src, dstTemp, kerode);
+	verifica &= vc_binary_dilate(dstTemp, dst, kdilate);
+
+	vc_image_free(dstTemp);
+
+	return verifica;
+}
+
+// Aplica uma operação de fecho nos elementos da imagem
+//  src: imagem original
+//  dst: imagem final
+//  kdilate: kernel a aplicar na dilatação
+//  kerode: kernel a aplicar na erosão
+int vc_binary_close(IVC *src, IVC *dst, int kdilate, int kerode)
+{
+
+	int verifica = 1;
+	
+	IVC *dstTemp = vc_image_new(src->width, src->height, src->channels, src->levels);
+
+	verifica &= vc_binary_dilate(src, dstTemp, kdilate);
+	verifica &= vc_binary_erode(dstTemp, dst, kerode);
+
+	vc_image_free(dstTemp);
+
+	return verifica;
 }

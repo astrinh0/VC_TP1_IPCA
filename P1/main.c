@@ -23,14 +23,13 @@ int main(int argc, char *argv[]){
     // Inicialização da imagem de entrada
     image = vc_read_image(argv[1]);
 
-    IVC* temp  = vc_image_new(image->width, image->height, 1, 255);
-    IVC* temp1  = vc_image_new(image->width, image->height, 1, 1);
+    IVC* temp  = vc_image_new(image->width, image->height, 1, 1);
+    IVC* temp1  = vc_image_new(image->width, image->height, 1, 1); // <-- Não está a ser usada
     IVC* temp2  = vc_image_new(image->width, image->height, 1, 1);
     IVC* temp3  = vc_image_new(image->width, image->height, 1, 1);
     IVC* temp4  = vc_image_new(image->width, image->height, 1, 1);
-    IVC* temp5  = vc_image_new(image->width, image->height, 1, 1);
-    IVC* temp6  = vc_image_new(image->width, image->height, 1, 1);
 
+    IVC* temp5  = vc_image_new(image->width, image->height, 1, 255);
 
     // Verificação de erro ao iniciar a imagem
     if(image == NULL){
@@ -39,23 +38,31 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    vc_rgb_get_blue_gray(image);  
-    vc_write_image("get_blue.ppm", image);
+    vc_gray_to_binary(image, temp, 100);    
+    vc_write_image("binary.pbm", temp);
 
-    vc_rgb_to_gray(image, temp);
-    vc_write_image("grayscale.pgm", temp);
+    vc_binary_open(temp, temp2, 7, 7);
+    vc_write_image("open.pbm", temp2);
 
-    vc_gray_to_binary(temp, temp1, 100);
-    vc_write_image("binary.pbm", temp1);
-
-    /* vc_binary_close(temp1, temp2, 13, 13);
-    vc_write_image("close.pbm", temp2); */
-
-    vc_binary_erode(temp1, temp2, 3);
-    vc_write_image("erode.pbm", temp2);
     
-    vc_binary_dilate(temp2, temp3, 3);
-    vc_write_image("dilate.pbm", temp3);
+    blobs = vc_binary_blob_labelling(temp2, temp3, ptrLabels);
+    vc_binary_blob_info(temp3, blobs, labels);
+    vc_write_image("labelling.pbm", temp3); 
+
+
+    vc_binary_dilate(temp2, temp4, 11);
+    vc_write_image("dilate.pbm", temp4);
+
+    vc_brains_out(image, temp4, temp5);
+    vc_write_image("brain.pgm", temp5);
+
+
+
+    printf("\nLabels: %d", labels);
+    printf("\nPerimetro: %d", blobs->perimeter);
+    printf("\nArea: %d\n", blobs->area);
+    printf("\nCentro massa: x: %d y: %d\n", blobs->xc, blobs->yc);
+
 
 
 
@@ -66,7 +73,7 @@ int main(int argc, char *argv[]){
     vc_image_free(temp3);
     vc_image_free(temp4);
     vc_image_free(temp5);
-    vc_image_free(temp6);
-    
+
+
     return 1;
 }
