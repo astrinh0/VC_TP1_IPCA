@@ -48,14 +48,11 @@ int main(int argc, char *argv[]){
     vc_gray_to_binary(temp, temp1, 100);
     vc_write_image("binary.pbm", temp1);
 
-    /* vc_binary_close(temp1, temp2, 13, 13);
-    vc_write_image("close.pbm", temp2); */
+    vc_binary_close(temp1, temp2, 13, 17);
+    vc_write_image("close.pbm", temp2);
 
-    vc_binary_erode(temp1, temp2, 3);
-    vc_write_image("erode.pbm", temp2);
+    blobs = 
     
-    vc_binary_dilate(temp2, temp3, 3);
-    vc_write_image("dilate.pbm", temp3);
 
 
 

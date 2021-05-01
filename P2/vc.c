@@ -456,7 +456,7 @@ int vc_gray_to_binary(IVC *src, IVC *dst, int threshold)
 		{
 			pos = y*bytesperline + x*channels;
 
-			if ((datasrc[pos] < threshold) || (datasrc[pos] > 175))
+			if (datasrc[pos] < threshold)
 			{
 				datadst[pos] = 0;
 			}
@@ -607,3 +607,5 @@ int vc_binary_close(IVC *src, IVC *dst, int kdilate, int kerode)
 
 	return verifica;
 }
+
+
