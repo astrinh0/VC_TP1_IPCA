@@ -42,11 +42,6 @@ typedef struct {
 } OVC;
 
 
-/* typedef struct {
-	int radius;       // Raio do filtro
-	double **matrix;  // Matriz do filtro
-} FILTER; */
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //                    Assinaturas
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -66,5 +61,6 @@ int vc_rgb_to_gray(IVC *src, IVC *dst);
 int vc_gray_to_binary(IVC *src, IVC *dst, int threshold);
 int vc_binary_erode(IVC *src, IVC *dst, int kernel);
 int vc_binary_dilate(IVC *src, IVC *dst, int kernel);
-int vc_binary_open(IVC *src, IVC *dst, int kerode, int kdilate);
 int vc_binary_close(IVC *src, IVC *dst, int kdilate, int kerode);
+OVC* vc_binary_blob_labelling(IVC *src, IVC *dst, int *nlabels);
+int vc_binary_blob_info(IVC *src, OVC *blobs, int nblobs);
