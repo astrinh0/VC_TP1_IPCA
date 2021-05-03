@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
 
     /* Etiquetagem dos blobs */
     blobs = vc_binary_blob_labelling(temp2, temp3, ptrLabels);
-    vc_write_image("labelling.pbm", temp);
+    vc_write_image("labelling.pbm", temp3);
 
     /* Calculo de area, perimetro e centro de massa do blob */
     vc_binary_blob_info(temp3, blobs, labels);
